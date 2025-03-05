@@ -5,11 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-  <title>Document</title>
+  <title>URL Shrinker</title>
+  <style>
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background-color: #121212;
+      color: #ffffff;
+    }
+
+    body.dark-mode a {
+      color: #bb86fc;
+    }
+
+    body.dark-mode .table {
+      background-color: #1e1e1e;
+      color: #ffffff;
+    }
+
+    body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #2d2d2d;
+    }
+
+    body.dark-mode .form-control {
+      background-color: #333;
+      color: #fff;
+      border-color: #444;
+    }
+
+    body.dark-mode .btn-success {
+      background-color: #28a745;
+      border-color: #28a745;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>URL Shrinker</h1>
+    <div class="d-flex justify-content-between align-items-center">
+      <h1>URL Shrinker</h1>
+      <button id="darkModeToggle" class="btn btn-secondary">Toggle Dark Mode</button>
+    </div>
     <form action="/shortUrls" method="POST" class="my-4 form-inline">
       <label for="fullUrl" class="sr-only">Url</label>
       <input required placeholder="Url" type="url" name="fullUrl" id="fullUrl" class="form-control col mr-2">
@@ -22,6 +56,7 @@
           <th>Full URL</th>
           <th>Short URL</th>
           <th>Clicks</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -30,10 +65,45 @@
             <td><a href="<%= shortUrl.full %>"><%= shortUrl.full %></a></td>
             <td><a href="<%= shortUrl.short %>"><%= shortUrl.short %></a></td>
             <td><%= shortUrl.clicks %></td>
+            <td>
+              <button class="btn btn-primary btn-sm copy-btn" data-url="<%= shortUrl.short %>">Copy</button>
+            </td>
           </tr>
         <% }) %>
       </tbody>
     </table>
   </div>
+
+  <script>
+    // Dark Mode Toggle Script
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+
+    // Check localStorage for dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      body.classList.add('dark-mode');
+    }
+
+    // Toggle dark mode
+    darkModeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+    });
+
+    // Copy to Clipboard Script
+    document.querySelectorAll('.copy-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const url = button.getAttribute('data-url');
+        navigator.clipboard.writeText(url).then(() => {
+          button.textContent = 'Copied!';
+          setTimeout(() => {
+            button.textContent = 'Copy';
+          }, 2000); // Reset button text after 2 seconds
+        }).catch(err => {
+          console.error('Failed to copy URL: ', err);
+        });
+      });
+    });
+  </script>
 </body>
 </html>
